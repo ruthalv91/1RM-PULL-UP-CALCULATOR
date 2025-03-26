@@ -1,0 +1,61 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+    background-color: #1e1e1e;
+    color: white;
+}
+
+/* Ajustar inputs i botons per pantalles petites */
+input, button {
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+    width: 90%; /* Ajusta els inputs i botons perquè ocupin quasi tota l’amplada */
+    max-width: 400px; /* Evita que es facin massa grans */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Ajustar la taula perquè es pugui desplaçar en mòbils */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Permet desplaçament horitzontal si cal */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    min-width: 600px; /* Assegura que la taula no es deformi */
+}
+
+th, td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #333;
+}
+
+/* Media query per mòbils (amplada màxima 600px) */
+@media screen and (max-width: 600px) {
+    body {
+        margin: 10px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    input, button {
+        font-size: 14px;
+    }
+
+    table {
+        font-size: 14px; /* Redueix la mida del text a les taules */
+    }
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RM en Pull Ups</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #1e1e1e;
+            color: white;
+        }
+        input, button {
+            margin: 10px;
+            padding: 8px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #333;
+        }
+        .highlight {
+            background-color: #FFD700;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Calculadora de RM estimada</h2>
+    
+    <label for="inputBodyweight">Pes corporal (kg):</label>
+    <input type="number" id="inputBodyweight" value="">
+
+    <label for="liftedWeight">Pes aixecat (kg):</label>
+    <input type="number" id="liftedWeight" value="">
+
+    <label for="reps">Repeticions:</label>
+    <input type="number" id="reps" value="">
+
+    <button onclick="calculateEstimatedRM()">Calcular 1RM estimat</button>
+
+    <h3>1RM Estimat: <span id="estimatedRM">-</span> kg</h3>
+
+    <h2>RM en Pull Ups - Generador de Taules</h2>
+
+    <label for="bodyweight">Pes corporal (kg):</label>
+    <input type="number" id="bodyweight" value="">
+
+    <label for="extraMass">Pes extra per 1 repetició màxima (kg):</label>
+    <input type="number" id="extraMass" value="">
+
+    <button onclick="generateWeightTable()">Taula Pesos</button>
+    <button onclick="generatePercentageTable()">Taula Percentatges</button>
+
+    <div id="table-container"></div>
+
+    <a href="#table-container">Ir a la tabla</a>
+    <a href="#estimatedRM">Ir a la calculadora de RM</a>
+
+    <script>
+        function calculate1RM(reps, extraMass, bodyweight) {
+            let totalWeight = bodyweight + extraMass;
+            return (totalWeight / (Math.exp(4.5954 - 0.01997 * reps) / 100) - bodyweight).toFixed(1);
+        }
+
+        function generateWeightTable() {
+            let bodyweight = parseFloat(document.getElementById("bodyweight").value) || 0;
+            let extraMass = parseFloat(document.getElementById("extraMass").value) || 0;
+            let repsRange = Array.from({length: 19}, (_, i) => i + 2);
+            let extraWeights = [2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 30, 35, 40, 45, 50];
+
+            let tableHTML = "<table><thead><tr><th>Reps</th>";
+            extraWeights.forEach(w => tableHTML += `<th>${w} kg</th>`);
+            tableHTML += "</tr></thead><tbody>";
+
+            repsRange.forEach(reps => {
+                tableHTML += `<tr><td>${reps}</td>`;
+                extraWeights.forEach(weight => {
+                    let value = calculate1RM(reps, weight, bodyweight);
+                    let isCloseToExtraMass = Math.abs(value - extraMass) <= 2.5;
+                    let cellClass = isCloseToExtraMass ? 'highlight' : '';
+                    tableHTML += `<td class="${cellClass}">${value}</td>`;
+                });
+                tableHTML += "</tr>";
+            });
+
+            tableHTML += "</tbody></table>";
+            document.getElementById("table-container").innerHTML = tableHTML;
+        }
+
+        function generatePercentageTable() {
+            let bodyweight = parseFloat(document.getElementById("bodyweight").value) || 0;
+            let extraMass = parseFloat(document.getElementById("extraMass").value) || 0;
+            let oneRM = bodyweight + extraMass;  // 1RM total (pes corporal + pes extra)
+
+            let repsRange = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20]; // Repeticions considerades
+            let tableHTML = "<table><thead><tr><th>Reps</th><th>Pes extra (kg)</th><th>% de RM</th></tr></thead><tbody>";
+
+            repsRange.forEach(reps => {
+                let percentRM = Math.exp(4.5954 - 0.01997 * reps);
+                let totalWeight = oneRM * (percentRM / 100);
+                let extraWeight = totalWeight - bodyweight;
+                if (extraWeight < 0) extraWeight = 0; 
+
+                let finalPercentRM = (totalWeight / oneRM) * 100;
+
+                tableHTML += `<tr>
+                                <td>${reps}</td>
+                                <td>${extraWeight.toFixed(1)} Kg</td>
+                                <td>${finalPercentRM.toFixed(0)} %</td>
+                              </tr>`;
+            });
+
+            tableHTML += "</tbody></table>";
+            document.getElementById("table-container").innerHTML = tableHTML;
+        }
+
+        function calculateEstimatedRM() {
+            let bodyweight = parseFloat(document.getElementById("inputBodyweight").value) || 0;
+            let liftedWeight = parseFloat(document.getElementById("liftedWeight").value) || 0;
+            let reps = parseInt(document.getElementById("reps").value) || 0;
+
+            if (bodyweight === 0 || liftedWeight === 0 || reps < 1) {
+                document.getElementById("estimatedRM").textContent = "-";
+                return;
+            }
+
+            let totalWeight = bodyweight + liftedWeight;
+            let estimated1RM = (totalWeight / (Math.exp(4.5954 - 0.01997 * reps) / 100)) - bodyweight;
+
+            document.getElementById("estimatedRM").textContent = estimated1RM.toFixed(1);
+        }
+    </script>
+
+</body>
+</html>
+
+
